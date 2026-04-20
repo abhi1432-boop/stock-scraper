@@ -6,7 +6,10 @@ COMPANY_NAMES = {
     "AAPL": "Apple Inc.",
     "GOOGL": "Alphabet Inc.",
     "MSFT": "Microsoft Corp.",
-    "AMZN": "Amazon.com, Inc."
+    "AMZN": "Amazon.com, Inc.",
+    "NVDA": "NVIDIA Corporation",
+    "AMD": "Advanced Micro Devices, Inc.",
+    "MU": "Micron Technology, Inc."
 }
 
 
@@ -232,7 +235,7 @@ def generate_html(stocks):
 
 def main():
     # list of stocks to track
-    symbols = ["AAPL", "GOOGL", "MSFT", "AMZN"]
+    symbols = ["AAPL", "GOOGL", "MSFT", "AMZN", "NVDA", "AMD", "MU"]
     stocks = []
 
     for symbol in symbols:
