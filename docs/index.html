@@ -184,11 +184,35 @@
             }
 
             .agent-response {
+                display: grid;
+                gap: 10px;
+                min-height: 90px;
+            }
+
+            .agent-bubble {
+                max-width: 100%;
+                padding: 14px 16px;
+                border-radius: 18px;
+                background: #1f1f1f;
+                color: #e5e5e5;
                 font-size: 14px;
-                color: #d4d4d4;
-                min-height: 50px;
-                white-space: pre-wrap;
-                line-height: 1.6;
+                line-height: 1.7;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            }
+
+            .agent-bubble.assistant {
+                border: 1px solid #373737;
+            }
+
+            .agent-bubble.thought {
+                border: 1px dashed #4b5563;
+                background: #111111;
+                color: #a3a3a3;
+                font-style: italic;
+            }
+
+            .agent-bubble strong {
+                color: #fff;
             }
 
             .updated {
@@ -408,9 +432,12 @@
                     <input id="agent-query" class="agent-input" type="text" placeholder="Ask me what to invest in..." />
                     <button id="agent-submit" class="agent-button" type="button">Ask</button>
                 </div>
-                <div id="agent-response" class="agent-response">Try asking: "What should I invest in now?"</div>
+                <div id="agent-response" class="agent-response">
+                    <div class="agent-bubble thought">Thinking through the latest market data... visualize the strongest themes.</div>
+                    <div class="agent-bubble assistant"><strong>Tip:</strong> Try asking a question like "What is the best stock to invest in for 2026?"</div>
+                </div>
             </div>
-            <p class="updated">Last updated: 2026-04-20 17:49:11</p>
+            <p class="updated">Last updated: 2026-04-20 17:58:06</p>
         </div>
         <script>
             const stocks = [{'symbol': 'AAPL', 'name': 'Apple Inc.', 'price': 273.05, 'change_percent': 0.0, 'change': 2.82}, {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'price': 337.42, 'change_percent': 0.0, 'change': -4.26}, {'symbol': 'MSFT', 'name': 'Microsoft Corp.', 'price': 418.07, 'change_percent': 0.0, 'change': -4.72}, {'symbol': 'AMZN', 'name': 'Amazon.com, Inc.', 'price': 248.28, 'change_percent': 0.0, 'change': -2.28}, {'symbol': 'NVDA', 'name': 'NVIDIA Corporation', 'price': 202.06, 'change_percent': 0.0, 'change': 0.38}, {'symbol': 'AMD', 'name': 'Advanced Micro Devices, Inc.', 'price': 274.95, 'change_percent': 0.0, 'change': -3.44}, {'symbol': 'MU', 'name': 'Micron Technology, Inc.', 'price': 448.42, 'change_percent': 0.0, 'change': -6.65}];
@@ -425,33 +452,72 @@
                 return sorted.slice(0, 3);
             }
 
-            function buildSuggestionMessage(items, reason) {
-                if (!items.length) return "I don't have enough data to make a suggestion.";
-                return `Based on current market data, ${reason}: ${items.map(item => `${item.symbol} ({item.name})`).join(', ')}.`;
-            }
+            function renderAgentResponse(bubbles) {
+                const container = document.getElementById('agent-response');
+                container.innerHTML = '';
+                bubbles.forEach(bubble => {
+                    const node = document.createElement('div');
+                        node.className = 'agent-bubble ' + bubble.type;
+                        node.textContent = bubble.text;
+                        container.appendChild(node);
+                    });
+                }
 
-            function handleAgentQuery(query) {
-                const prompt = query.toLowerCase();
-                if (prompt.includes('growth') || prompt.includes('best') || prompt.includes('top')) {
+                function buildAnalysis(items, reason) {
+                    if (!items.length) {
+                        return [
+                            { type: 'thought', text: 'Reviewing available symbols...'},
+                            { type: 'assistant', text: 'I do not have enough data to make a strong suggestion right now.'}
+                        ];
+                    }
+
+                    const summary = items.map(item => item.symbol + ' (' + item.name + ')').join(', ');
+                    return [
+                        { type: 'thought', text: 'Analyzing the latest market moves and momentum across the current universe.'},
+                        { type: 'assistant', text: 'After reviewing the data, the strongest candidates are ' + summary + '.' },
+                        { type: 'assistant', text: 'I recommend these because they best match the requested focus: ' + reason + '.' }
+                if (prompt.includes('clear cut winner') || prompt.includes('best stock') || prompt.includes('one stock') || prompt.includes('winner')) {
                     const picks = findTopPerformers();
-                    return buildSuggestionMessage(picks, 'the top performers right now');
+                    return buildAnalysis(picks, 'the clearest momentum leaders in the current market');
+                }
+                if (prompt.includes('growth') || prompt.includes('top') || prompt.includes('strong')) {
+                    const picks = findTopPerformers();
+                    return buildAnalysis(picks, 'top growth and momentum names');
                 }
                 if (prompt.includes('cheap') || prompt.includes('value') || prompt.includes('low')) {
                     const picks = findValuePicks();
-                    return buildSuggestionMessage(picks, 'some lower-priced stocks');
+                    return buildAnalysis(picks, 'lower-priced stocks that could offer value');
                 }
                 if (prompt.includes('long') || prompt.includes('hold') || prompt.includes('safe')) {
-                    const picks = stocks.filter(item => item.symbol === 'AAPL' || item.symbol === 'MSFT' || item.symbol === 'GOOGL');
-                    return buildSuggestionMessage(picks, 'some more stable large-cap names');
+                    const picks = stocks.filter(item => ['AAPL', 'MSFT', 'GOOGL'].includes(item.symbol));
+                    return buildAnalysis(picks, 'longer-term, more stable large-cap technology names');
                 }
                 const picks = findTopPerformers();
-                return buildSuggestionMessage(picks, 'my current recommendation');
+                return [
+                    { type: 'thought', text: 'I am synthesizing the most relevant market signals and relative strength.'},
+                    { type: 'assistant', text: 'Based on current data, these names look strongest: ' + picks.map(item => item.symbol + ' (' + item.name + ')').join(', ') + '.' },
+                    { type: 'assistant', text: 'Use this as a data-informed starting point rather than a final decision.' }
+                ];
             }
 
             document.getElementById('agent-submit').addEventListener('click', () => {
                 const query = document.getElementById('agent-query').value.trim();
-                const response = query ? handleAgentQuery(query) : 'Please enter a question about investing.';
-                document.getElementById('agent-response').textContent = response;
+                if (!query) {
+                    renderAgentResponse([
+                        { type: 'thought', text: 'Waiting for your question...'},
+                        { type: 'assistant', text: 'Please enter a question about investing to get a recommendation.' }
+                    ]);
+                    return;
+                }
+
+                renderAgentResponse([
+                    { type: 'thought', text: 'Thinking through the market data...'}
+                ]);
+
+                setTimeout(() => {
+                    const bubbles = handleAgentQuery(query);
+                    renderAgentResponse(bubbles);
+                }, 500);
             });
 
             document.getElementById('agent-query').addEventListener('keyup', (event) => {
