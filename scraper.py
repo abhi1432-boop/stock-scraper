@@ -361,25 +361,30 @@ def generate_html(stocks):
                 container.innerHTML = '';
                 bubbles.forEach(bubble => {{
                     const node = document.createElement('div');
-                        node.className = 'agent-bubble ' + bubble.type;
-                        node.textContent = bubble.text;
-                        container.appendChild(node);
-                    }});
+                    node.className = 'agent-bubble ' + bubble.type;
+                    node.textContent = bubble.text;
+                    container.appendChild(node);
+                }});
+            }}
+
+            function buildAnalysis(items, reason) {{
+                if (!items.length) {{
+                    return [
+                        {{ type: 'thought', text: 'Reviewing available symbols...'}},
+                        {{ type: 'assistant', text: 'I do not have enough data to make a strong suggestion right now.'}}
+                    ];
                 }}
 
-                function buildAnalysis(items, reason) {{
-                    if (!items.length) {{
-                        return [
-                            {{ type: 'thought', text: 'Reviewing available symbols...'}},
-                            {{ type: 'assistant', text: 'I do not have enough data to make a strong suggestion right now.'}}
-                        ];
-                    }}
+                const summary = items.map(item => item.symbol + ' (' + item.name + ')').join(', ');
+                return [
+                    {{ type: 'thought', text: 'Analyzing the latest market moves and momentum across the current universe.'}},
+                    {{ type: 'assistant', text: 'After reviewing the data, the strongest candidates are ' + summary + '.' }},
+                    {{ type: 'assistant', text: 'I recommend these because they best match the requested focus: ' + reason + '.' }}
+                ];
+            }}
 
-                    const summary = items.map(item => item.symbol + ' (' + item.name + ')').join(', ');
-                    return [
-                        {{ type: 'thought', text: 'Analyzing the latest market moves and momentum across the current universe.'}},
-                        {{ type: 'assistant', text: 'After reviewing the data, the strongest candidates are ' + summary + '.' }},
-                        {{ type: 'assistant', text: 'I recommend these because they best match the requested focus: ' + reason + '.' }}
+            function handleAgentQuery(query) {{
+                const prompt = query.toLowerCase();
                 if (prompt.includes('clear cut winner') || prompt.includes('best stock') || prompt.includes('one stock') || prompt.includes('winner')) {{
                     const picks = findTopPerformers();
                     return buildAnalysis(picks, 'the clearest momentum leaders in the current market');
