@@ -46,6 +46,16 @@ def get_stock_data(symbol):
 
 def generate_html(stocks):
     cards = ""
+    stocks_data = [
+        {
+            "symbol": stock["symbol"],
+            "name": stock["name"],
+            "price": stock["price"],
+            "change_percent": stock["change_percent"],
+            "change": stock["change"]
+        }
+        for stock in stocks
+    ]
     for stock in stocks:
         change_sign = "+" if stock["change"] >= 0 else ""
         percent_sign = "+" if stock["change_percent"] >= 0 else ""
@@ -209,6 +219,71 @@ def generate_html(stocks):
                 color: #a3a3a3;
             }}
 
+            .agent-panel {{
+                background: #151515;
+                border: 1px solid #292929;
+                border-radius: 12px;
+                padding: 24px;
+                margin-top: 32px;
+            }}
+
+            .agent-header {{
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                margin-bottom: 16px;
+            }}
+
+            .agent-title {{
+                font-size: 18px;
+                font-weight: 600;
+                color: #fff;
+            }}
+
+            .agent-subtitle {{
+                font-size: 13px;
+                color: #737373;
+            }}
+
+            .agent-input-row {{
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 12px;
+                margin-bottom: 16px;
+            }}
+
+            .agent-input {{
+                width: 100%;
+                padding: 12px 14px;
+                border-radius: 10px;
+                border: 1px solid #262626;
+                background: #101010;
+                color: #f5f5f5;
+                font-size: 14px;
+            }}
+
+            .agent-button {{
+                padding: 12px 18px;
+                border: none;
+                border-radius: 10px;
+                background: #2563eb;
+                color: #fff;
+                font-weight: 600;
+                cursor: pointer;
+            }}
+
+            .agent-button:hover {{
+                background: #1d4ed8;
+            }}
+
+            .agent-response {{
+                font-size: 14px;
+                color: #d4d4d4;
+                min-height: 50px;
+                white-space: pre-wrap;
+                line-height: 1.6;
+            }}
+
             .updated {{
                 text-align: center;
                 margin-top: 32px;
@@ -226,8 +301,69 @@ def generate_html(stocks):
             <div class=\"stock-grid\">
                 {cards}
             </div>
-            <p class=\"updated\">Last updated: {page_timestamp}</p>
+            <div class="agent-panel">
+                <div class="agent-header">
+                    <div>
+                        <div class="agent-title">Investment Agent</div>
+                        <div class="agent-subtitle">Ask which stock you should consider investing in.</div>
+                    </div>
+                </div>
+                <div class="agent-input-row">
+                    <input id="agent-query" class="agent-input" type="text" placeholder="Ask me what to invest in..." />
+                    <button id="agent-submit" class="agent-button" type="button">Ask</button>
+                </div>
+                <div id="agent-response" class="agent-response">Try asking: "What should I invest in now?"</div>
+            </div>
+            <p class="updated">Last updated: {page_timestamp}</p>
         </div>
+        <script>
+            const stocks = {stocks_data};
+
+            function findTopPerformers() {{
+                const sorted = stocks.slice().sort((a, b) => b.change_percent - a.change_percent);
+                return sorted.slice(0, 3);
+            }}
+
+            function findValuePicks() {{
+                const sorted = stocks.slice().sort((a, b) => a.price - b.price);
+                return sorted.slice(0, 3);
+            }}
+
+            function buildSuggestionMessage(items, reason) {{
+                if (!items.length) return "I don't have enough data to make a suggestion.";
+                return `Based on current market data, ${{reason}}: ${{items.map(item => `${{item.symbol}} ({{item.name}})`).join(', ')}}.`;
+            }}
+
+            function handleAgentQuery(query) {{
+                const prompt = query.toLowerCase();
+                if (prompt.includes('growth') || prompt.includes('best') || prompt.includes('top')) {{
+                    const picks = findTopPerformers();
+                    return buildSuggestionMessage(picks, 'the top performers right now');
+                }}
+                if (prompt.includes('cheap') || prompt.includes('value') || prompt.includes('low')) {{
+                    const picks = findValuePicks();
+                    return buildSuggestionMessage(picks, 'some lower-priced stocks');
+                }}
+                if (prompt.includes('long') || prompt.includes('hold') || prompt.includes('safe')) {{
+                    const picks = stocks.filter(item => item.symbol === 'AAPL' || item.symbol === 'MSFT' || item.symbol === 'GOOGL');
+                    return buildSuggestionMessage(picks, 'some more stable large-cap names');
+                }}
+                const picks = findTopPerformers();
+                return buildSuggestionMessage(picks, 'my current recommendation');
+            }}
+
+            document.getElementById('agent-submit').addEventListener('click', () => {{
+                const query = document.getElementById('agent-query').value.trim();
+                const response = query ? handleAgentQuery(query) : 'Please enter a question about investing.';
+                document.getElementById('agent-response').textContent = response;
+            }});
+
+            document.getElementById('agent-query').addEventListener('keyup', (event) => {{
+                if (event.key === 'Enter') {{
+                    document.getElementById('agent-submit').click();
+                }}
+            }});
+        </script>
     </body>
     </html>
     """

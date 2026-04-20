@@ -64,3 +64,5 @@ def test_generate_html_contains_stock_details():
     assert "Open" in result
     assert "High" in result
     assert "Low" in result
+    assert "Investment Agent" in result
+    assert "Ask me what to invest in" in result
