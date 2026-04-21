@@ -24,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run tests
-        run: pytest tests/
+      - name: Run unit tests (no network)
+        run: pytest tests/ -k "generate_html" -v
 
       - name: Run scraper
         run: python scraper.py
