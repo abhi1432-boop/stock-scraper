@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TrendingUp, AlertCircle } from 'lucide-react'
 import SearchBar from './components/SearchBar'
@@ -23,22 +23,23 @@ export default function App() {
   const [loadingStocks, setLoadingStocks] = useState(true)
   const [apiError, setApiError] = useState(false)
 
-  // Search state: null | { isLoading, ticker, stock?, summary? }
+  // Searched stock card injection
   const [searchState, setSearchState] = useState(null)
   const [isSearching, setIsSearching] = useState(false)
 
+  // Ref to ChatInterface so the search bar can push queries into it
+  const chatRef = useRef(null)
+
   useEffect(() => {
     fetchAllStocks().then(data => {
-      if (data) {
-        setStocks(data)
-      } else {
-        setApiError(true)
-      }
+      if (data) setStocks(data)
+      else setApiError(true)
       setLoadingStocks(false)
     })
   }, [])
 
-  const handleSearch = async (ticker) => {
+  // Called by SearchBar when a ticker is typed / selected
+  const handleTickerSearch = async (ticker) => {
     if (!ticker) {
       setSearchState(null)
       return
@@ -53,7 +54,7 @@ export default function App() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            question: `In 2 sentences, is ${ticker} currently fairly priced, cheap, or expensive based on its valuation metrics?`,
+            question: `In 2 sentences, is ${ticker} currently fairly priced, cheap, or expensive? Be direct and name a verdict.`,
             tickers: [ticker],
           }),
         }),
@@ -62,12 +63,7 @@ export default function App() {
       const stock = stockRes.ok ? await stockRes.json() : null
       const chat = chatRes.ok ? await chatRes.json() : null
 
-      setSearchState({
-        isLoading: false,
-        ticker,
-        stock,
-        summary: chat?.answer ?? null,
-      })
+      setSearchState({ isLoading: false, ticker, stock, summary: chat?.answer ?? null })
     } catch {
       setSearchState({ isLoading: false, ticker, stock: null, summary: null })
     } finally {
@@ -75,11 +71,20 @@ export default function App() {
     }
   }
 
+  // Called by SearchBar when user types a free-text question and presses Enter
+  const handleFreeQuery = (query) => {
+    chatRef.current?.send(query)
+  }
+
   const symbols = Object.keys(stocks)
 
   return (
     <div className="min-h-screen bg-slate-900">
-      <SearchBar onSearch={handleSearch} isSearching={isSearching} />
+      <SearchBar
+        onTickerSearch={handleTickerSearch}
+        onFreeQuery={handleFreeQuery}
+        isSearching={isSearching}
+      />
 
       <main className="max-w-6xl mx-auto px-4 py-8 pt-6">
         {/* Header */}
@@ -93,11 +98,11 @@ export default function App() {
           </p>
         </header>
 
-        {/* Searched stock injection — slides in above the grid */}
+        {/* Searched stock injection — AnimatePresence key must be on the child */}
         <AnimatePresence mode="wait">
           {searchState && (
             <motion.section
-              key="search-section"
+              key="search-result"
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16, scale: 0.98 }}
@@ -109,11 +114,16 @@ export default function App() {
               </p>
               <AnimatePresence mode="wait">
                 {searchState.isLoading ? (
-                  <motion.div key="skel" exit={{ opacity: 0 }}>
+                  <motion.div key="skel" exit={{ opacity: 0, scale: 0.97 }}>
                     <SkeletonCard />
                   </motion.div>
                 ) : searchState.stock ? (
-                  <motion.div key="card" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: 'spring', stiffness: 180, damping: 20 }}>
+                  <motion.div
+                    key="card"
+                    initial={{ opacity: 0, scale: 0.97 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 180, damping: 20 }}
+                  >
                     <StockMetricCard stock={searchState.stock} summary={searchState.summary} highlight />
                   </motion.div>
                 ) : (
@@ -138,7 +148,9 @@ export default function App() {
           {apiError && (
             <div className="flex items-center gap-2 bg-amber-950/40 border border-amber-800/50 rounded-xl px-4 py-3 text-amber-400 text-sm mb-4">
               <AlertCircle size={15} />
-              Backend unavailable — run <code className="bg-slate-800 px-1.5 py-0.5 rounded text-xs font-mono">python app.py</code> for live data.
+              Backend unavailable — run{' '}
+              <code className="bg-slate-800 px-1.5 py-0.5 rounded text-xs font-mono">python app.py</code>{' '}
+              for live data.
             </div>
           )}
 
@@ -168,8 +180,8 @@ export default function App() {
           )}
         </section>
 
-        {/* Chat Interface */}
-        <ChatInterface />
+        {/* Chat Interface — ref exposes send() for search bar routing */}
+        <ChatInterface ref={chatRef} />
 
         <p className="text-center text-[11px] text-slate-700 mt-8 pb-8">
           Educational analysis only — not financial advice &middot; Data: Yahoo Finance
