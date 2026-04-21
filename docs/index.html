@@ -1,536 +1,391 @@
-
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Stock Tracker</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-                background: #0f0f0f;
-                color: #e5e5e5;
-                min-height: 100vh;
-                padding: 40px 20px;
-            }
-
-            .container {
-                max-width: 1000px;
-                margin: 0 auto;
-            }
-
-            header {
-                margin-bottom: 40px;
-            }
-
-            h1 {
-                font-size: 28px;
-                font-weight: 600;
-                color: #fff;
-                margin-bottom: 8px;
-            }
-
-            .subtitle {
-                color: #737373;
-                font-size: 14px;
-            }
-
-            .stock-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 16px;
-            }
-
-            .stock-card {
-                background: #171717;
-                border: 1px solid #262626;
-                border-radius: 12px;
-                padding: 20px;
-                transition: border-color 0.2s ease;
-            }
-
-            .stock-card:hover {
-                border-color: #404040;
-            }
-
-            .stock-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                margin-bottom: 16px;
-            }
-
-            .stock-symbol {
-                font-size: 18px;
-                font-weight: 600;
-                color: #fff;
-            }
-
-            .stock-name {
-                font-size: 13px;
-                color: #737373;
-                margin-top: 2px;
-            }
-
-            .stock-price {
-                font-size: 24px;
-                font-weight: 600;
-                color: #fff;
-                text-align: right;
-            }
-
-            .stock-change {
-                font-size: 14px;
-                font-weight: 500;
-                margin-top: 4px;
-                text-align: right;
-            }
-
-            .stock-change.positive {
-                color: #22c55e;
-            }
-
-            .stock-change.negative {
-                color: #ef4444;
-            }
-
-            .stock-details {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 12px;
-                padding-top: 16px;
-                border-top: 1px solid #262626;
-            }
-
-            .detail-item {
-                text-align: center;
-            }
-
-            .detail-label {
-                font-size: 11px;
-                color: #525252;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                margin-bottom: 4px;
-            }
-
-            .detail-value {
-                font-size: 14px;
-                font-weight: 500;
-                color: #a3a3a3;
-            }
-
-            .agent-panel {
-                background: #151515;
-                border: 1px solid #292929;
-                border-radius: 12px;
-                padding: 24px;
-                margin-top: 32px;
-            }
-
-            .agent-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: baseline;
-                margin-bottom: 16px;
-            }
-
-            .agent-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #fff;
-            }
-
-            .agent-subtitle {
-                font-size: 13px;
-                color: #737373;
-            }
-
-            .agent-input-row {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                gap: 12px;
-                margin-bottom: 16px;
-            }
-
-            .agent-input {
-                width: 100%;
-                padding: 12px 14px;
-                border-radius: 10px;
-                border: 1px solid #262626;
-                background: #101010;
-                color: #f5f5f5;
-                font-size: 14px;
-            }
-
-            .agent-button {
-                padding: 12px 18px;
-                border: none;
-                border-radius: 10px;
-                background: #2563eb;
-                color: #fff;
-                font-weight: 600;
-                cursor: pointer;
-            }
-
-            .agent-button:hover {
-                background: #1d4ed8;
-            }
-
-            .agent-response {
-                display: grid;
-                gap: 10px;
-                min-height: 90px;
-            }
-
-            .agent-bubble {
-                max-width: 100%;
-                padding: 14px 16px;
-                border-radius: 18px;
-                background: #1f1f1f;
-                color: #e5e5e5;
-                font-size: 14px;
-                line-height: 1.7;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-            }
-
-            .agent-bubble.assistant {
-                border: 1px solid #373737;
-            }
-
-            .agent-bubble.thought {
-                border: 1px dashed #4b5563;
-                background: #111111;
-                color: #a3a3a3;
-                font-style: italic;
-            }
-
-            .agent-bubble strong {
-                color: #fff;
-            }
-
-            .updated {
-                text-align: center;
-                margin-top: 32px;
-                font-size: 12px;
-                color: #525252;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <header>
-                <h1>Stock Tracker</h1>
-                <p class="subtitle">Real-time market data</p>
-            </header>
-            <div class="stock-grid">
-                
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">AAPL</div>
-                        <div class="stock-name">Apple Inc.</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$273.05</div>
-                        <div class="stock-change positive">+2.82 (+0.00%)</div>
-                    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #e5e5e5; min-height: 100vh; padding: 40px 20px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { margin-bottom: 40px; }
+        h1 { font-size: 28px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .subtitle { color: #737373; font-size: 14px; }
+        .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .stock-card { background: #171717; border: 1px solid #262626; border-radius: 12px; padding: 20px; transition: border-color 0.2s; }
+        .stock-card:hover { border-color: #404040; }
+        .stock-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+        .stock-symbol { font-size: 18px; font-weight: 600; color: #fff; }
+        .stock-name { font-size: 13px; color: #737373; margin-top: 2px; }
+        .stock-price { font-size: 22px; font-weight: 600; color: #fff; text-align: right; }
+        .stock-change { font-size: 13px; font-weight: 500; margin-top: 4px; text-align: right; }
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+        .stock-details { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-top: 14px; border-top: 1px solid #262626; }
+        .detail-item { text-align: center; }
+        .detail-label { font-size: 10px; color: #525252; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+        .detail-value { font-size: 13px; font-weight: 500; color: #a3a3a3; }
+        .agent-panel { background: #151515; border: 1px solid #292929; border-radius: 12px; padding: 24px; margin-top: 32px; }
+        .agent-header { margin-bottom: 16px; }
+        .agent-title { font-size: 18px; font-weight: 600; color: #fff; }
+        .agent-subtitle { font-size: 13px; color: #737373; margin-top: 4px; }
+        .quick-prompts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .quick-btn { padding: 6px 12px; border: 1px solid #333; border-radius: 20px; background: transparent; color: #a3a3a3; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+        .quick-btn:hover { border-color: #2563eb; color: #60a5fa; }
+        .chat-history { display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px; max-height: 500px; overflow-y: auto; min-height: 80px; padding-right: 4px; }
+        .bubble { padding: 14px 16px; border-radius: 12px; font-size: 14px; line-height: 1.7; }
+        .bubble.user { background: #1e3a5f; border: 1px solid #2563eb; color: #e0f0ff; align-self: flex-end; max-width: 80%; border-radius: 12px 12px 4px 12px; }
+        .bubble.assistant { background: #1f1f1f; border: 1px solid #373737; color: #e5e5e5; }
+        .bubble.assistant h1,.bubble.assistant h2,.bubble.assistant h3 { color: #fff; margin: 10px 0 5px; font-size: 15px; }
+        .bubble.assistant ul,.bubble.assistant ol { padding-left: 18px; margin: 6px 0; }
+        .bubble.assistant li { margin: 3px 0; }
+        .bubble.assistant blockquote { border-left: 3px solid #404040; padding-left: 12px; color: #737373; margin: 8px 0; font-style: italic; }
+        .bubble.assistant strong { color: #fff; }
+        .bubble.assistant p { margin: 5px 0; }
+        .bubble.assistant hr { border: none; border-top: 1px solid #333; margin: 10px 0; }
+        .bubble.error { background: #2d0f0f; border: 1px solid #7f1d1d; color: #fca5a5; }
+        .bubble.loading { background: #111; border: 1px dashed #404040; color: #737373; font-style: italic; }
+        .input-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; }
+        .agent-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #262626; background: #101010; color: #f5f5f5; font-size: 14px; }
+        .agent-input:focus { outline: none; border-color: #2563eb; }
+        .send-btn { padding: 12px 20px; border: none; border-radius: 10px; background: #2563eb; color: #fff; font-weight: 600; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
+        .send-btn:hover { background: #1d4ed8; }
+        .send-btn:disabled { background: #1e3a5f; cursor: not-allowed; }
+        .footer { text-align: center; margin-top: 32px; font-size: 12px; color: #525252; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Stock Tracker</h1>
+        <p class="subtitle">Real-time market data &middot; AI-powered analysis</p>
+    </header>
+    <div class="stock-grid">
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">AAPL</div>
+                    <div class="stock-name">Apple Inc.</div>
                 </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$274.27</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$270.29</div>
-                    </div>
+                <div>
+                    <div class="stock-price">$267.93</div>
+                    <div class="stock-change negative">-5.12 (-1.88%)</div>
                 </div>
             </div>
-        
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">GOOGL</div>
-                        <div class="stock-name">Alphabet Inc.</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$337.42</div>
-                        <div class="stock-change negative">-4.26 (+0.00%)</div>
-                    </div>
-                </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$341.35</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$336.63</div>
-                    </div>
-                </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$271.44</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$272.80</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$265.40</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$3.94T</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">33.96</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">1.11</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value positive">+3.5%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+8.0%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+36.6%</div></div>
             </div>
-        
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">MSFT</div>
-                        <div class="stock-name">Microsoft Corp.</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$418.07</div>
-                        <div class="stock-change negative">-4.72 (+0.00%)</div>
-                    </div>
-                </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$423.33</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$416.30</div>
-                    </div>
-                </div>
-            </div>
-        
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">AMZN</div>
-                        <div class="stock-name">Amazon.com, Inc.</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$248.28</div>
-                        <div class="stock-change negative">-2.28 (+0.00%)</div>
-                    </div>
-                </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$250.18</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$245.37</div>
-                    </div>
-                </div>
-            </div>
-        
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">NVDA</div>
-                        <div class="stock-name">NVIDIA Corporation</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$202.06</div>
-                        <div class="stock-change positive">+0.38 (+0.00%)</div>
-                    </div>
-                </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$202.17</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$197.84</div>
-                    </div>
-                </div>
-            </div>
-        
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">AMD</div>
-                        <div class="stock-name">Advanced Micro Devices, Inc.</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$274.95</div>
-                        <div class="stock-change negative">-3.44 (+0.00%)</div>
-                    </div>
-                </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$287.61</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$272.13</div>
-                    </div>
-                </div>
-            </div>
-        
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-symbol">MU</div>
-                        <div class="stock-name">Micron Technology, Inc.</div>
-                    </div>
-                    <div>
-                        <div class="stock-price">$448.42</div>
-                        <div class="stock-change negative">-6.65 (+0.00%)</div>
-                    </div>
-                </div>
-                <div class="stock-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Open</div>
-                        <div class="detail-value">$0.00</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">High</div>
-                        <div class="detail-value">$464.56</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Low</div>
-                        <div class="detail-value">$435.90</div>
-                    </div>
-                </div>
-            </div>
-        
-            </div>
-            <div class="agent-panel">
-                <div class="agent-header">
-                    <div>
-                        <div class="agent-title">Investment Agent</div>
-                        <div class="agent-subtitle">Ask which stock you should consider investing in.</div>
-                    </div>
-                </div>
-                <div class="agent-input-row">
-                    <input id="agent-query" class="agent-input" type="text" placeholder="Ask me what to invest in..." />
-                    <button id="agent-submit" class="agent-button" type="button">Ask</button>
-                </div>
-                <div id="agent-response" class="agent-response">
-                    <div class="agent-bubble thought">Thinking through the latest market data... visualize the strongest themes.</div>
-                    <div class="agent-bubble assistant"><strong>Tip:</strong> Try asking a question like "What is the best stock to invest in for 2026?"</div>
-                </div>
-            </div>
-            <p class="updated">Last updated: 2026-04-20 18:01:29</p>
         </div>
-        <script>
-            const stocks = [{'symbol': 'AAPL', 'name': 'Apple Inc.', 'price': 273.05, 'change_percent': 0.0, 'change': 2.82}, {'symbol': 'GOOGL', 'name': 'Alphabet Inc.', 'price': 337.42, 'change_percent': 0.0, 'change': -4.26}, {'symbol': 'MSFT', 'name': 'Microsoft Corp.', 'price': 418.07, 'change_percent': 0.0, 'change': -4.72}, {'symbol': 'AMZN', 'name': 'Amazon.com, Inc.', 'price': 248.28, 'change_percent': 0.0, 'change': -2.28}, {'symbol': 'NVDA', 'name': 'NVIDIA Corporation', 'price': 202.06, 'change_percent': 0.0, 'change': 0.38}, {'symbol': 'AMD', 'name': 'Advanced Micro Devices, Inc.', 'price': 274.95, 'change_percent': 0.0, 'change': -3.44}, {'symbol': 'MU', 'name': 'Micron Technology, Inc.', 'price': 448.42, 'change_percent': 0.0, 'change': -6.65}];
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">GOOGL</div>
+                    <div class="stock-name">Alphabet Inc.</div>
+                </div>
+                <div>
+                    <div class="stock-price">$333.73</div>
+                    <div class="stock-change negative">-3.69 (-1.09%)</div>
+                </div>
+            </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$337.69</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$339.34</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$332.47</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$4.04T</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">30.90</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">1.13</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value positive">+0.2%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+10.9%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+121.5%</div></div>
+            </div>
+        </div>
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">MSFT</div>
+                    <div class="stock-name">Microsoft Corp.</div>
+                </div>
+                <div>
+                    <div class="stock-price">$426.72</div>
+                    <div class="stock-change positive">+8.65 (+2.07%)</div>
+                </div>
+            </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$419.98</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$427.18</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$417.24</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$3.17T</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">26.72</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">1.11</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value positive">+8.6%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+11.7%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+16.9%</div></div>
+            </div>
+        </div>
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">AMZN</div>
+                    <div class="stock-name">Amazon.com, Inc.</div>
+                </div>
+                <div>
+                    <div class="stock-price">$251.51</div>
+                    <div class="stock-change positive">+3.23 (+1.30%)</div>
+                </div>
+            </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$254.72</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$255.00</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$250.35</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$2.70T</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">35.03</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">1.38</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value positive">+1.0%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+22.5%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+45.7%</div></div>
+            </div>
+        </div>
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">NVDA</div>
+                    <div class="stock-name">NVIDIA Corporation</div>
+                </div>
+                <div>
+                    <div class="stock-price">$200.67</div>
+                    <div class="stock-change negative">-1.39 (-0.69%)</div>
+                </div>
+            </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$202.13</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$202.75</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$199.00</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$4.88T</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">40.87</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">2.33</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value positive">+2.1%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+16.2%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+97.8%</div></div>
+            </div>
+        </div>
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">AMD</div>
+                    <div class="stock-name">Advanced Micro Devices, Inc.</div>
+                </div>
+                <div>
+                    <div class="stock-price">$284.31</div>
+                    <div class="stock-change positive">+9.36 (+3.40%)</div>
+                </div>
+            </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$277.32</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$285.13</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$276.62</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$463.54B</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">108.93</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">1.96</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value positive">+11.5%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+41.2%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+224.9%</div></div>
+            </div>
+        </div>
+        <div class="stock-card">
+            <div class="stock-header">
+                <div>
+                    <div class="stock-symbol">MU</div>
+                    <div class="stock-name">Micron Technology, Inc.</div>
+                </div>
+                <div>
+                    <div class="stock-price">$451.91</div>
+                    <div class="stock-change positive">+3.49 (+0.78%)</div>
+                </div>
+            </div>
+            <div class="stock-details">
+                <div class="detail-item"><div class="detail-label">Open</div><div class="detail-value">$451.46</div></div>
+                <div class="detail-item"><div class="detail-label">High</div><div class="detail-value">$457.82</div></div>
+                <div class="detail-item"><div class="detail-label">Low</div><div class="detail-value">$441.31</div></div>
+                <div class="detail-item"><div class="detail-label">Mkt Cap</div><div class="detail-value">$509.60B</div></div>
+                <div class="detail-item"><div class="detail-label">P/E</div><div class="detail-value">21.31</div></div>
+                <div class="detail-item"><div class="detail-label">Beta</div><div class="detail-value">1.61</div></div>
+                <div class="detail-item"><div class="detail-label">5D</div><div class="detail-value negative">-3.0%</div></div>
+                <div class="detail-item"><div class="detail-label">1M</div><div class="detail-value positive">+6.9%</div></div>
+                <div class="detail-item"><div class="detail-label">1Y</div><div class="detail-value positive">+558.4%</div></div>
+            </div>
+        </div></div>
+    <div class="agent-panel">
+        <div class="agent-header">
+            <div class="agent-title">Investment Agent</div>
+            <div class="agent-subtitle">AI-powered analysis using live scraped financial data</div>
+        </div>
+        <div class="quick-prompts">
+            <button class="quick-btn" onclick="askQuick('Is NVDA overvalued right now?')">Is NVDA overvalued?</button>
+            <button class="quick-btn" onclick="askQuick('Compare AAPL vs MSFT long term.')">AAPL vs MSFT</button>
+            <button class="quick-btn" onclick="askQuick('Which stock has the strongest balance sheet?')">Best balance sheet?</button>
+            <button class="quick-btn" onclick="askQuick('Compare NVDA vs AMD in AI chips.')">NVDA vs AMD (AI)</button>
+            <button class="quick-btn" onclick="askQuick('Rank these companies by growth potential.')">Growth ranking</button>
+            <button class="quick-btn" onclick="askQuick('Which stock looks safest in a recession?')">Recession safe?</button>
+            <button class="quick-btn" onclick="askQuick('Which stock has stronger margins: AMD or MU?')">AMD vs MU margins</button>
+            <button class="quick-btn" onclick="askQuick('Best stock to buy for $1000 today?')">Best for $1000?</button>
+        </div>
+        <div id="chat-history" class="chat-history">
+            <div class="bubble loading">Ask me anything about these stocks — I&rsquo;ll use live financial data and AI to answer.</div>
+        </div>
+        <div class="input-row">
+            <input id="agent-query" class="agent-input" type="text" placeholder="Ask me what to invest in..." />
+            <button id="send-btn" class="send-btn" type="button">Ask</button>
+        </div>
+    </div>
+    <div class="footer">
+        <div>Last updated: 2026-04-21 14:03:01</div>
+        <div style="margin-top:6px;font-size:11px;color:#404040;">Educational analysis only &mdash; not financial advice.</div>
+    </div>
+</div>
+<script>
+const stocksData = [{"symbol": "AAPL", "name": "Apple Inc.", "price": 267.93, "change_percent": -1.88, "change": -5.12, "market_cap": 3938014986240, "beta": 1.109, "pe_ttm": 33.958176, "return_1y": 36.61, "return_3m": 8.71, "return_5y": 106.06}, {"symbol": "GOOGL", "name": "Alphabet Inc.", "price": 333.73, "change_percent": -1.09, "change": -3.69, "market_cap": 4037132156928, "beta": 1.128, "pe_ttm": 30.900927, "return_1y": 121.54, "return_3m": 3.72, "return_5y": 195.38}, {"symbol": "MSFT", "name": "Microsoft Corp.", "price": 426.72, "change_percent": 2.07, "change": 8.65, "market_cap": 3171544203264, "beta": 1.107, "pe_ttm": 26.7201, "return_1y": 16.91, "return_3m": -5.9, "return_5y": 70.66}, {"symbol": "AMZN", "name": "Amazon.com, Inc.", "price": 251.515, "change_percent": 1.3, "change": 3.23, "market_cap": 2704855531520, "beta": 1.383, "pe_ttm": 35.029945, "return_1y": 45.71, "return_3m": 8.88, "return_5y": 49.62}, {"symbol": "NVDA", "name": "NVIDIA Corporation", "price": 200.6699, "change_percent": -0.69, "change": -1.39, "market_cap": 4877281918976, "beta": 2.335, "pe_ttm": 40.869637, "return_1y": 97.77, "return_3m": 12.7, "return_5y": 1209.69}, {"symbol": "AMD", "name": "Advanced Micro Devices, Inc.", "price": 284.31, "change_percent": 3.4, "change": 9.36, "market_cap": 463542124544, "beta": 1.963, "pe_ttm": 108.93104, "return_1y": 224.93, "return_3m": 22.59, "return_5y": 248.38}, {"symbol": "MU", "name": "Micron Technology, Inc.", "price": 451.91, "change_percent": 0.78, "change": 3.49, "market_cap": 509600464896, "beta": 1.606, "pe_ttm": 21.305046, "return_1y": 558.43, "return_3m": 23.87, "return_5y": 417.79}];
 
-            function findTopPerformers() {
-                const sorted = stocks.slice().sort((a, b) => b.change_percent - a.change_percent);
-                return sorted.slice(0, 3);
-            }
+function appendBubble(cls, content, isText) {
+    const h = document.getElementById('chat-history');
+    const b = document.createElement('div');
+    b.className = 'bubble ' + cls;
+    if (isText) b.textContent = content;
+    else b.innerHTML = content;
+    h.appendChild(b);
+    h.scrollTop = h.scrollHeight;
+    return b;
+}
 
-            function findValuePicks() {
-                const sorted = stocks.slice().sort((a, b) => a.price - b.price);
-                return sorted.slice(0, 3);
-            }
+function clearPlaceholder() {
+    const el = document.querySelector('#chat-history .loading');
+    if (el) el.remove();
+}
 
-            function renderAgentResponse(bubbles) {
-                const container = document.getElementById('agent-response');
-                container.innerHTML = '';
-                bubbles.forEach(bubble => {
-                    const node = document.createElement('div');
-                    node.className = 'agent-bubble ' + bubble.type;
-                    node.textContent = bubble.text;
-                    container.appendChild(node);
-                });
-            }
+function describeStock(stock) {
+    const price = stock.price ? `$${stock.price.toFixed(2)}` : 'N/A';
+    const change = typeof stock.change === 'number' ? `${stock.change >= 0 ? '+' : ''}{stock.change.toFixed(2)}` : '0.00';
+    const pct = typeof stock.change_percent === 'number' ? `${stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%` : '0.00%';
+    return `${stock.symbol} (${stock.name}) is trading at ${price}, with {change} ({pct}).`;
+}
 
-            function buildAnalysis(items, reason) {
-                if (!items.length) {
-                    return [
-                        { type: 'thought', text: 'Reviewing available symbols...'},
-                        { type: 'assistant', text: 'I do not have enough data to make a strong suggestion right now.'}
-                    ];
-                }
+function chooseBestBy(metric, ascending = false) {
+    const valid = stocksData.filter(s => typeof s[metric] === 'number');
+    if (!valid.length) return null;
+    valid.sort((a, b) => ascending ? a[metric] - b[metric] : b[metric] - a[metric]);
+    return valid[0];
+}
 
-                const summary = items.map(item => item.symbol + ' (' + item.name + ')').join(', ');
-                return [
-                    { type: 'thought', text: 'Analyzing the latest market moves and momentum across the current universe.'},
-                    { type: 'assistant', text: 'After reviewing the data, the strongest candidates are ' + summary + '.' },
-                    { type: 'assistant', text: 'I recommend these because they best match the requested focus: ' + reason + '.' }
-                ];
-            }
+function generateLocalAnswer(question) {
+    const prompt = question.toLowerCase();
+    const topByReturn = chooseBestBy('return_1y') || chooseBestBy('change_percent');
+    const lowPe = chooseBestBy('pe_ttm', true);
+    const stable = chooseBestBy('beta', true);
+    const cheap = chooseBestBy('price', true);
+    const highlight = stocksData.map(s => `${s.symbol} (${s.name})`).join(', ');
 
-            function handleAgentQuery(query) {
-                const prompt = query.toLowerCase();
-                if (prompt.includes('clear cut winner') || prompt.includes('best stock') || prompt.includes('one stock') || prompt.includes('winner')) {
-                    const picks = findTopPerformers();
-                    return buildAnalysis(picks, 'the clearest momentum leaders in the current market');
-                }
-                if (prompt.includes('growth') || prompt.includes('top') || prompt.includes('strong')) {
-                    const picks = findTopPerformers();
-                    return buildAnalysis(picks, 'top growth and momentum names');
-                }
-                if (prompt.includes('cheap') || prompt.includes('value') || prompt.includes('low')) {
-                    const picks = findValuePicks();
-                    return buildAnalysis(picks, 'lower-priced stocks that could offer value');
-                }
-                if (prompt.includes('long') || prompt.includes('hold') || prompt.includes('safe')) {
-                    const picks = stocks.filter(item => ['AAPL', 'MSFT', 'GOOGL'].includes(item.symbol));
-                    return buildAnalysis(picks, 'longer-term, more stable large-cap technology names');
-                }
-                const picks = findTopPerformers();
-                return [
-                    { type: 'thought', text: 'I am synthesizing the most relevant market signals and relative strength.'},
-                    { type: 'assistant', text: 'Based on current data, these names look strongest: ' + picks.map(item => item.symbol + ' (' + item.name + ')').join(', ') + '.' },
-                    { type: 'assistant', text: 'Use this as a data-informed starting point rather than a final decision.' }
-                ];
-            }
+    const comparisons = [
+        { query: 'aapl', symbol: 'AAPL' },
+        { query: 'msft', symbol: 'MSFT' },
+        { query: 'googl', symbol: 'GOOGL' },
+        { query: 'nvda', symbol: 'NVDA' },
+        { query: 'amd', symbol: 'AMD' },
+        { query: 'mu', symbol: 'MU' },
+        { query: 'apple', symbol: 'AAPL' },
+        { query: 'microsoft', symbol: 'MSFT' },
+        { query: 'alphabet', symbol: 'GOOGL' },
+        { query: 'nvidia', symbol: 'NVDA' },
+        { query: 'advanced micro devices', symbol: 'AMD' },
+        { query: 'micron', symbol: 'MU' },
+    ];
 
-            document.getElementById('agent-submit').addEventListener('click', () => {
-                const query = document.getElementById('agent-query').value.trim();
-                if (!query) {
-                    renderAgentResponse([
-                        { type: 'thought', text: 'Waiting for your question...'},
-                        { type: 'assistant', text: 'Please enter a question about investing to get a recommendation.' }
-                    ]);
-                    return;
-                }
+    const mentioned = [...new Set(comparisons.filter(c => prompt.includes(c.query)).map(c => c.symbol))];
+    if (mentioned.length >= 2) {
+        return [
+            { type: 'thought', text: 'Comparing the requested names based on available metrics.' },
+            { type: 'assistant', text: `I see you want a matchup. ${mentioned.join(' vs ')} are both strong in different ways.` },
+            { type: 'assistant', text: 'A deeper choice depends on your risk profile: one may have stronger growth while the other is more stable.' },
+        ];
+    }
 
-                renderAgentResponse([
-                    { type: 'thought', text: 'Thinking through the market data...'}
-                ]);
+    if (prompt.includes('clear cut winner') || prompt.includes('best stock') || prompt.includes('winner')) {
+        const pick = topByReturn || stocksData[0];
+        return [
+            { type: 'thought', text: 'Identifying the strongest performer in the current dataset.' },
+            { type: 'assistant', text: `The top pick right now appears to be ${pick.symbol} (${pick.name}). ${describeStock(pick)}` },
+            { type: 'assistant', text: 'It has the strongest recent return profile among the current tracked symbols.' },
+        ];
+    }
 
-                setTimeout(() => {
-                    const bubbles = handleAgentQuery(query);
-                    renderAgentResponse(bubbles);
-                }, 500);
-            });
+    if (prompt.includes('value') || prompt.includes('cheap') || prompt.includes('low pe') || prompt.includes('undervalued')) {
+        const pick = lowPe || cheap;
+        return [
+            { type: 'thought', text: 'Looking for the most attractive valuation signal.' },
+            { type: 'assistant', text: `A value-oriented selection would be ${pick.symbol} (${pick.name}) based on its relative price-to-earnings metric and current price position.` },
+            { type: 'assistant', text: 'This is a starting point for further fundamental review.' },
+        ];
+    }
 
-            document.getElementById('agent-query').addEventListener('keyup', (event) => {
-                if (event.key === 'Enter') {
-                    document.getElementById('agent-submit').click();
-                }
-            });
-        </script>
-    </body>
-    </html>
-    
+    if (prompt.includes('safe') || prompt.includes('stable') || prompt.includes('recession')) {
+        const pick = stable || stocksData[0];
+        return [
+            { type: 'thought', text: 'Assessing the names for relative stability.' },
+            { type: 'assistant', text: `For a more defensive approach, ${pick.symbol} (${pick.name}) is the better choice among the current group due to its lower beta.` },
+            { type: 'assistant', text: 'Stable does not mean risk-free; use this as a cautious orientation.' },
+        ];
+    }
+
+    if (prompt.includes('growth') || prompt.includes('momentum') || prompt.includes('strong performance')) {
+        const pick = topByReturn || stocksData[0];
+        return [
+            { type: 'thought', text: 'Prioritizing momentum and growth indicators.' },
+            { type: 'assistant', text: `A momentum-style pick is ${pick.symbol} (${pick.name}). ${describeStock(pick)}` },
+            { type: 'assistant', text: 'It shows the strongest return profile in the current dataset.' },
+        ];
+    }
+
+    const pick = topByReturn || stocksData[0];
+    return [
+        { type: 'thought', text: 'Synthesizing the full list for a balanced recommendation.' },
+        { type: 'assistant', text: `A good candidate to begin with is ${pick.symbol} (${pick.name}). ${describeStock(pick)}` },
+        { type: 'assistant', text: 'Use this as a data-based starting point rather than a final call.' },
+    ];
+}
+
+async function sendQuestion(question) {
+    if (!question) return;
+    clearPlaceholder();
+    appendBubble('user', question, true);
+    const loading = appendBubble('loading', 'Thinking through market data and recent signals…', true);
+    const btn = document.getElementById('send-btn');
+    btn.disabled = true;
+    document.getElementById('agent-query').value = '';
+    await new Promise(resolve => setTimeout(resolve, 600));
+    loading.remove();
+    const bubbles = generateLocalAnswer(question);
+    bubbles.forEach(b => appendBubble(b.type, b.text, true));
+    btn.disabled = false;
+}
+
+function askQuick(q) {
+    document.getElementById('agent-query').value = q;
+    sendQuestion(q);
+}
+
+document.getElementById('send-btn').addEventListener('click', () => {
+    sendQuestion(document.getElementById('agent-query').value.trim());
+});
+document.getElementById('agent-query').addEventListener('keyup', e => {
+    if (e.key === 'Enter') sendQuestion(document.getElementById('agent-query').value.trim());
+});
+</script>
+</body>
+</html>

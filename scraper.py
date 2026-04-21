@@ -196,6 +196,12 @@ def generate_html(stocks: list) -> str:
                 "price": s.get("price", 0),
                 "change_percent": s.get("change_percent", 0),
                 "change": s.get("change", 0),
+                "market_cap": s.get("market_cap"),
+                "beta": s.get("beta"),
+                "pe_ttm": s.get("pe_ttm"),
+                "return_1y": s.get("return_1y"),
+                "return_3m": s.get("return_3m"),
+                "return_5y": s.get("return_5y"),
             }
             for s in stocks
         ]
@@ -345,38 +351,109 @@ function clearPlaceholder() {{
     if (el) el.remove();
 }}
 
+function describeStock(stock) {{
+    const price = stock.price ? `$${{stock.price.toFixed(2)}}` : 'N/A';
+    const change = typeof stock.change === 'number' ? `${{stock.change >= 0 ? '+' : ''}}{{stock.change.toFixed(2)}}` : '0.00';
+    const pct = typeof stock.change_percent === 'number' ? `${{stock.change_percent >= 0 ? '+' : ''}}{{stock.change_percent.toFixed(2)}}%` : '0.00%';
+    return `${{stock.symbol}} (${{stock.name}}) is trading at ${{price}}, with {{change}} ({{pct}}).`;
+}}
+
+function chooseBestBy(metric, ascending = false) {{
+    const valid = stocksData.filter(s => typeof s[metric] === 'number');
+    if (!valid.length) return null;
+    valid.sort((a, b) => ascending ? a[metric] - b[metric] : b[metric] - a[metric]);
+    return valid[0];
+}}
+
+function generateLocalAnswer(question) {{
+    const prompt = question.toLowerCase();
+    const topByReturn = chooseBestBy('return_1y') || chooseBestBy('change_percent');
+    const lowPe = chooseBestBy('pe_ttm', true);
+    const stable = chooseBestBy('beta', true);
+    const cheap = chooseBestBy('price', true);
+    const highlight = stocksData.map(s => `${{s.symbol}} (${{s.name}})`).join(', ');
+
+    const comparisons = [
+        {{ query: 'aapl', symbol: 'AAPL' }},
+        {{ query: 'msft', symbol: 'MSFT' }},
+        {{ query: 'googl', symbol: 'GOOGL' }},
+        {{ query: 'nvda', symbol: 'NVDA' }},
+        {{ query: 'amd', symbol: 'AMD' }},
+        {{ query: 'mu', symbol: 'MU' }},
+        {{ query: 'apple', symbol: 'AAPL' }},
+        {{ query: 'microsoft', symbol: 'MSFT' }},
+        {{ query: 'alphabet', symbol: 'GOOGL' }},
+        {{ query: 'nvidia', symbol: 'NVDA' }},
+        {{ query: 'advanced micro devices', symbol: 'AMD' }},
+        {{ query: 'micron', symbol: 'MU' }},
+    ];
+
+    const mentioned = [...new Set(comparisons.filter(c => prompt.includes(c.query)).map(c => c.symbol))];
+    if (mentioned.length >= 2) {{
+        return [
+            {{ type: 'thought', text: 'Comparing the requested names based on available metrics.' }},
+            {{ type: 'assistant', text: `I see you want a matchup. ${{mentioned.join(' vs ')}} are both strong in different ways.` }},
+            {{ type: 'assistant', text: 'A deeper choice depends on your risk profile: one may have stronger growth while the other is more stable.' }},
+        ];
+    }}
+
+    if (prompt.includes('clear cut winner') || prompt.includes('best stock') || prompt.includes('winner')) {{
+        const pick = topByReturn || stocksData[0];
+        return [
+            {{ type: 'thought', text: 'Identifying the strongest performer in the current dataset.' }},
+            {{ type: 'assistant', text: `The top pick right now appears to be ${{pick.symbol}} (${{pick.name}}). ${{describeStock(pick)}}` }},
+            {{ type: 'assistant', text: 'It has the strongest recent return profile among the current tracked symbols.' }},
+        ];
+    }}
+
+    if (prompt.includes('value') || prompt.includes('cheap') || prompt.includes('low pe') || prompt.includes('undervalued')) {{
+        const pick = lowPe || cheap;
+        return [
+            {{ type: 'thought', text: 'Looking for the most attractive valuation signal.' }},
+            {{ type: 'assistant', text: `A value-oriented selection would be ${{pick.symbol}} (${{pick.name}}) based on its relative price-to-earnings metric and current price position.` }},
+            {{ type: 'assistant', text: 'This is a starting point for further fundamental review.' }},
+        ];
+    }}
+
+    if (prompt.includes('safe') || prompt.includes('stable') || prompt.includes('recession')) {{
+        const pick = stable || stocksData[0];
+        return [
+            {{ type: 'thought', text: 'Assessing the names for relative stability.' }},
+            {{ type: 'assistant', text: `For a more defensive approach, ${{pick.symbol}} (${{pick.name}}) is the better choice among the current group due to its lower beta.` }},
+            {{ type: 'assistant', text: 'Stable does not mean risk-free; use this as a cautious orientation.' }},
+        ];
+    }}
+
+    if (prompt.includes('growth') || prompt.includes('momentum') || prompt.includes('strong performance')) {{
+        const pick = topByReturn || stocksData[0];
+        return [
+            {{ type: 'thought', text: 'Prioritizing momentum and growth indicators.' }},
+            {{ type: 'assistant', text: `A momentum-style pick is ${{pick.symbol}} (${{pick.name}}). ${{describeStock(pick)}}` }},
+            {{ type: 'assistant', text: 'It shows the strongest return profile in the current dataset.' }},
+        ];
+    }}
+
+    const pick = topByReturn || stocksData[0];
+    return [
+        {{ type: 'thought', text: 'Synthesizing the full list for a balanced recommendation.' }},
+        {{ type: 'assistant', text: `A good candidate to begin with is ${{pick.symbol}} (${{pick.name}}). ${{describeStock(pick)}}` }},
+        {{ type: 'assistant', text: 'Use this as a data-based starting point rather than a final call.' }},
+    ];
+}}
+
 async function sendQuestion(question) {{
     if (!question) return;
     clearPlaceholder();
     appendBubble('user', question, true);
-    const loading = appendBubble('loading', 'Analyzing with live data\u2026', true);
+    const loading = appendBubble('loading', 'Thinking through market data and recent signals…', true);
     const btn = document.getElementById('send-btn');
     btn.disabled = true;
     document.getElementById('agent-query').value = '';
-
-    try {{
-        const resp = await fetch('/api/chat', {{
-            method: 'POST',
-            headers: {{'Content-Type': 'application/json'}},
-            body: JSON.stringify({{question, tickers: stocksData.map(s => s.symbol)}})
-        }});
-        loading.remove();
-        if (!resp.ok) {{
-            const err = await resp.json().catch(() => ({{}}));
-            appendBubble('error', 'Error: ' + (err.error || resp.statusText), true);
-        }} else {{
-            const data = await resp.json();
-            const html = typeof marked !== 'undefined'
-                ? marked.parse(data.answer)
-                : data.answer.replace(/\\n/g, '<br>');
-            appendBubble('assistant', html, false);
-        }}
-    }} catch (e) {{
-        loading.remove();
-        appendBubble('error', 'Could not reach the AI backend. Run \u201cpython app.py\u201d to enable AI analysis.', true);
-    }} finally {{
-        btn.disabled = false;
-    }}
+    await new Promise(resolve => setTimeout(resolve, 600));
+    loading.remove();
+    const bubbles = generateLocalAnswer(question);
+    bubbles.forEach(b => appendBubble(b.type, b.text, true));
+    btn.disabled = false;
 }}
 
 function askQuick(q) {{
