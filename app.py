@@ -4,7 +4,12 @@ from flask import Flask, request, jsonify, send_from_directory
 from scraper import get_stock_data, STOCKS
 from chatbot import StockChatbot
 
-app = Flask(__name__, static_folder="docs", static_url_path="")
+# Serve the React build when available, fall back to the scraper-generated static site
+_DIST = "frontend/dist"
+_STATIC = "docs"
+_static_folder = _DIST if os.path.isdir(_DIST) else _STATIC
+
+app = Flask(__name__, static_folder=_static_folder, static_url_path="")
 
 _chatbot: StockChatbot | None = None
 
@@ -32,7 +37,7 @@ def _cached_stock(symbol: str) -> dict:
 
 @app.route("/")
 def index():
-    return send_from_directory("docs", "index.html")
+    return send_from_directory(app.static_folder, "index.html")
 
 
 @app.route("/api/stocks")

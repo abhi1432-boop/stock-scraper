@@ -481,9 +481,19 @@ def main():
         print(f"Fetched {symbol}: ${data['price']}")
 
     os.makedirs("docs", exist_ok=True)
-    with open("docs/index.html", "w") as f:
-        f.write(generate_html(stocks))
-    print("Generated docs/index.html")
+
+    # stock-data.json is the static fallback for the React app on GitHub Pages
+    stocks_dict = {s["symbol"]: s for s in stocks}
+    with open("docs/stock-data.json", "w") as f:
+        json.dump(stocks_dict, f, default=str)
+    print("Generated docs/stock-data.json")
+
+    # Only regenerate the static HTML if the React build hasn't replaced index.html
+    react_dist = os.path.join("frontend", "dist", "index.html")
+    if not os.path.exists(react_dist):
+        with open("docs/index.html", "w") as f:
+            f.write(generate_html(stocks))
+        print("Generated docs/index.html (static fallback)")
 
 
 if __name__ == "__main__":
